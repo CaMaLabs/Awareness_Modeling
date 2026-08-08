@@ -21,6 +21,7 @@ The current pipeline supports:
 - state-specific inertia and directed-transition experiments
 - recurrent rollout maps
 - deconfounded recurrent-state falsification and ablation tests
+- preregistered recurrent parameter-space and robustness auditing
 
 ## Key files
 
@@ -32,32 +33,43 @@ The current pipeline supports:
 - `state_specific_inertia.py` — state-memory and directed-transition path tests
 - `recurrent_rollout_map.py` — original recurrent rollout-map experiment
 - `true_recurrent_dynamics.py` — recurrent state selection with prototype-target deconfounding and falsification controls
+- `recurrent_parameter_audit.py` — preregistered six-parameter recurrence sweep, controls, perturbation census, and multi-seed validation
+- `recurrent_parameter_audit_core.py` — vectorized audit dynamics and metrics
 - `test_true_recurrent_dynamics.py` — unit tests for the recurrent falsification mechanics
+- `test_recurrent_parameter_audit.py` — audit/deconfounding/control/classification tests
 - `MILESTONE_FOUR_STATE_RECURRENT.md` — historical four-state recurrent milestone
 - `MILESTONE_TRUE_RECURRENT_FALSIFICATION.md` — deconfounded recurrence milestone and interpretation
+- `MILESTONE_RECURRENT_PARAMETER_AUDIT.md` — robust parameter-region milestone
 
 ## Quick start
 
+The parameter audit uses NumPy for vectorized sweeps:
+
 ```bash
+python -m pip install -r requirements.txt
 python balanced_state_generator.py
-python asci_pipeline_nompl.py --input asci_template.csv --out-prefix diversified
-python regime_map_nompl.py
-python sleep_projection.py
-python state_specific_inertia.py
-python recurrent_rollout_map.py
 python true_recurrent_dynamics.py --input balanced_states.csv --out-prefix true_recurrent
-python -m unittest -v test_true_recurrent_dynamics.py
+python -m unittest -v test_true_recurrent_dynamics.py test_recurrent_parameter_audit.py
+python recurrent_parameter_audit.py --workers 4
 ```
+
+The audit writes reproducible CSV, JSON, and Markdown outputs including the full parameter sweep, passing region, perturbation sensitivity, multi-seed census, controls, state occupancy, and transition summaries.
 
 ## Current interpretation
 
-The synthetic framework can generate separable wake, N2, REM, and N3 feature regimes. The original recurrent rollout map also produced strong start-state-dependent endpoint occupancy.
+The synthetic framework can generate separable wake, N2, REM, and N3 feature regimes. The original recurrent rollout map produced strong start-state-dependent endpoint occupancy, but a later falsification test showed that most of that result came from retaining the starting state's feature prototype in the rollout target.
 
-A later falsification test identified an important confound in that result: the original rollout target retained most of the starting state's feature prototype, while state classification occurred before recurrent inertia was added to the score.
+`true_recurrent_dynamics.py` removes that final-target confound and moves previous-state memory into state selection. At its original default recurrent parameters, only a weak residual history effect remains after deconfounding.
 
-`true_recurrent_dynamics.py` moves previous-state memory into the state-selection energy and tests a deconfounded condition in which every start state reaches the same final feature probe for a given alpha/chi cell. Under the current default synthetic parameterization, most of the original start/final dependence disappears after that control. A small recurrent residual remains and decreases further when memory, correct previous-state history, or transition penalties are removed.
+The preregistered `recurrent_parameter_audit.py` then tests whether that weak default result is representative of the whole model family. Across 2,430 frozen parameter configurations, 354 configurations survive the deconfounded four-state gates, ±5%/±10% local perturbations, and full-grid validation on at least four of five synthetic seeds. Those robust points occupy about **14.6%** of the tested grid and form connected components of **349** and **5** points.
 
-The defensible current claim is therefore that the model has strong synthetic regime separation and a **weak residual history-dependent recurrent effect after deconfounding**, not yet a validated four-attractor neural dynamical system.
+The strongest boundary is state-memory strength: no fully robust points occur at memory scale 0 or 0.5, only six occur at scale 1, and most occur at scales 2-4. Robust points span every tested transition scale, rollout depth, emission width, temperature, and loop-coupling level.
+
+The defensible model-level claim is therefore:
+
+> The original four-basin result was confounded, the original deconfounded default recurrence is weak, but the deconfounded model family contains a finite and perturbation-stable four-state recurrent region when state-memory strength is sufficiently larger.
+
+This is **not** evidence that the brain uses those parameter values. The recurrent coefficients remain synthetic and must be constrained against empirical state-duration, transition, hysteresis, or perturbation data before making physiological claims.
 
 ## Data format
 
@@ -80,4 +92,4 @@ Expected columns for ingest/scoring include:
 
 ## Disclaimer
 
-This repository is experimental research software. Synthetic/model-internal results are not physiological validation. It is not intended for diagnosis, treatment, anesthesia, or any medical decision-making.
+This repository is experimental research software. Synthetic/model-internal results are not physiological validation. It is not intended for diagnosis, treatment, anesthesia, consciousness assessment, or any medical decision-making.
