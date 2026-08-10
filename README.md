@@ -22,6 +22,7 @@ The current pipeline supports:
 - recurrent rollout maps
 - deconfounded recurrent-state falsification and ablation tests
 - preregistered recurrent parameter-space and robustness auditing
+- external human sleep-transition, dwell-time, and perturbation constraint auditing
 
 ## Key files
 
@@ -35,11 +36,15 @@ The current pipeline supports:
 - `true_recurrent_dynamics.py` — recurrent state selection with prototype-target deconfounding and falsification controls
 - `recurrent_parameter_audit.py` — preregistered six-parameter recurrence sweep, controls, perturbation census, and multi-seed validation
 - `recurrent_parameter_audit_core.py` — vectorized audit dynamics and metrics
+- `empirical_sleep_constraint_audit.py` — downstream comparison of robust recurrent configurations with published human sleep transition, dwell, and arousal structure
+- `recurrent_parameter_audit_passing_region.csv` — generated parameter-audit table containing the fully robust marker used by the empirical audit
 - `test_true_recurrent_dynamics.py` — unit tests for the recurrent falsification mechanics
 - `test_recurrent_parameter_audit.py` — audit/deconfounding/control/classification tests
+- `test_empirical_sleep_constraint_audit.py` — empirical-collapse, transition-distance, dwell-fit, and constraint-audit tests
 - `MILESTONE_FOUR_STATE_RECURRENT.md` — historical four-state recurrent milestone
 - `MILESTONE_TRUE_RECURRENT_FALSIFICATION.md` — deconfounded recurrence milestone and interpretation
 - `MILESTONE_RECURRENT_PARAMETER_AUDIT.md` — robust parameter-region milestone
+- `MILESTONE_EMPIRICAL_SLEEP_CONSTRAINT.md` — external temporal-constraint milestone and architecture-gap interpretation
 
 ## Quick start
 
@@ -51,9 +56,10 @@ python balanced_state_generator.py
 python true_recurrent_dynamics.py --input balanced_states.csv --out-prefix true_recurrent
 python -m unittest -v test_true_recurrent_dynamics.py test_recurrent_parameter_audit.py
 python recurrent_parameter_audit.py --workers 4
+python empirical_sleep_constraint_audit.py --robust-configs recurrent_parameter_audit_passing_region.csv
 ```
 
-The audit writes reproducible CSV, JSON, and Markdown outputs including the full parameter sweep, passing region, perturbation sensitivity, multi-seed census, controls, state occupancy, and transition summaries.
+The parameter audit writes reproducible CSV, JSON, and Markdown outputs including the full parameter sweep, passing region, perturbation sensitivity, multi-seed census, controls, state occupancy, and transition summaries. The empirical audit then tests the fully robust subset against fixed external temporal constraints and writes its own per-configuration CSV, JSON summary, and Markdown report.
 
 ## Current interpretation
 
@@ -69,7 +75,11 @@ The defensible model-level claim is therefore:
 
 > The original four-basin result was confounded, the original deconfounded default recurrence is weak, but the deconfounded model family contains a finite and perturbation-stable four-state recurrent region when state-memory strength is sufficiently larger.
 
-This is **not** evidence that the brain uses those parameter values. The recurrent coefficients remain synthetic and must be constrained against empirical state-duration, transition, hysteresis, or perturbation data before making physiological claims.
+A downstream empirical audit now tests all 354 robust synthetic configurations against published healthy-human sleep transition structure, approximate continuous-bout persistence, and an auditory-arousal ordering **without refitting those configurations**. Under frozen direct-match gates, **0/354** configurations match the complete temporal target. The best mean row-wise transition total-variation error is 0.2608 against a 0.20 ceiling, and the best dwell-shape log-RMSE is 0.6496 against a 0.50 ceiling. The largest structural error is N2: healthy-human dynamics favor N2 -> N3, while most robust model configurations favor N2 -> REM under the current standardized probe driver.
+
+The qualitative perturbation ordering is more promising: 343/354 robust configurations make N3 less wake-arousable than N2 and REM. Absolute softmax values are not calibrated event rates, however, and are not treated as literal arousal probabilities.
+
+The current defensible interpretation is therefore two-layered: **the deconfounded synthetic model family contains a robust recurrent region, but that region is not directly temporally calibrated to human sleep architecture under the current uniform alpha/chi driver.** The empirical null exposes a temporal-driver/identifiability gap rather than, by itself, falsifying the synthetic attractor region. Before assigning physiological meaning to the recurrent memory coefficient, the model needs an autonomous temporal layer with empirically constrained stage hazards/survival, higher-order transition history, and circadian/homeostatic drive.
 
 ## Data format
 
