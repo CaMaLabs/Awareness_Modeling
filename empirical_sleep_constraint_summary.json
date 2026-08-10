@@ -1,0 +1,54 @@
+{
+  "classification": "no_direct_temporal_match_current_driver",
+  "robust_configs_tested": 354,
+  "frozen_direct_passes": 0,
+  "transition_tv_gate_passes": 0,
+  "all_dominant_exit_gate_passes": 0,
+  "dwell_gate_passes": 0,
+  "arousal_absolute_gate_passes": 0,
+  "dominant_exit_match_count_distribution": {
+    "0": 0,
+    "1": 63,
+    "2": 172,
+    "3": 119,
+    "4": 0
+  },
+  "min_transition_tv_by_memory_scale": {
+    "1.0": 0.3680680935313948,
+    "2.0": 0.3294339537135113,
+    "4.0": 0.2608079180319668,
+    "8.0": 0.2849319080969103
+  },
+  "transition_tv_max": 0.2,
+  "dwell_log_rmse_max": 0.5,
+  "arousal_rmse_max": 0.01,
+  "dominant_exit_match_counts": {
+    "wake": 222,
+    "n2": 73,
+    "rem": 354,
+    "n3": 115
+  },
+  "qualitative_arousal_order_matches": 343,
+  "best_transition_config": "m4_t0_s16_w4_T0.5_l1",
+  "best_transition_tv": 0.2608079180319668,
+  "best_dwell_config": "m4_t4_s16_w4_T0.5_l0",
+  "best_dwell_log_rmse": 0.6495803727418147,
+  "empirical_mean_transition_matrix": {
+    "wake": {"wake": 0.0, "n2": 0.892681832822678, "rem": 0.1026397470059442, "n3": 0.004678420171377919},
+    "n2": {"wake": 0.28251617481662306, "n2": 0.0, "rem": 0.2060977363440589, "n3": 0.5113860888393181},
+    "rem": {"wake": 0.35710242015379534, "n2": 0.6428975798462047, "rem": 0.0, "n3": 0.0},
+    "n3": {"wake": 0.06842197287599587, "n2": 0.9301412455148087, "rem": 0.0014367816091954023, "n3": 0.0}
+  },
+  "empirical_dwell_minutes": {
+    "wake": 0.6139715564088342,
+    "n2": 3.137961611549687,
+    "rem": 5.233402462386849,
+    "n3": 1.2327722905639389
+  },
+  "reference_transition_tv_between_healthy_datasets": {
+    "kishi_2011_control_second__kishi_2011_control_third": 0.021655205363913882,
+    "kishi_2011_control_second__kishi_2008_healthy": 0.16623072552525828,
+    "kishi_2011_control_third__kishi_2008_healthy": 0.1750330533930126
+  },
+  "interpretation": "The synthetic recurrent region does not directly reproduce human temporal sleep-stage dynamics under the existing uniform alpha/chi probe ensemble. Because that ensemble is not an autonomous time-resolved sleep driver, this result identifies a temporal-driver/identifiability gap rather than by itself falsifying the existence of the deconfounded recurrent attractor region."
+}

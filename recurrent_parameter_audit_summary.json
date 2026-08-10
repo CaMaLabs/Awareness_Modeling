@@ -1,0 +1,53 @@
+{
+  "classification": "robust_four_state_region",
+  "preregistered_grid_size": 2430,
+  "basic_passing_configurations": 445,
+  "perturbation_robust_configurations": 401,
+  "fully_robust_configurations": 354,
+  "fully_robust_fraction_of_grid": 0.145679012345679,
+  "robust_connected_components": 2,
+  "robust_component_sizes": [349, 5],
+  "robust_components_meeting_size_gate": 2,
+  "representative_config": "m2_t1_s4_w4_T0.25_l1",
+  "representative_parameters": {
+    "memory_scale": 2.0,
+    "transition_scale": 1.0,
+    "rollout_steps": 4,
+    "emission_width": 4.0,
+    "temperature": 0.25,
+    "loop_scale": 1.0
+  },
+  "pass_criteria": {
+    "min_state_occupancy": 0.05,
+    "max_state_occupancy": 0.7,
+    "min_final_entropy_bits": 1.2,
+    "min_history_mi_bits": 0.1,
+    "min_mi_gain_vs_recurrence_off": 0.08,
+    "min_mi_gain_vs_shuffled": 0.05,
+    "min_mean_pairwise_js_bits": 0.03,
+    "max_same_state_fraction": 0.9,
+    "min_away_transition_fraction": 0.1,
+    "min_seed_pass_fraction": 0.8,
+    "min_perturb_pass_fraction": 0.7,
+    "min_robust_component_size": 3
+  },
+  "grid": {
+    "memory_scale": [0.0, 0.5, 1.0, 2.0, 4.0, 8.0],
+    "transition_scale": [0.0, 0.5, 1.0, 2.0, 4.0],
+    "rollout_steps": [4, 8, 16],
+    "emission_width": [1.0, 2.0, 4.0],
+    "temperature": [0.1, 0.25, 0.5],
+    "loop_scale": [0.0, 1.0, 4.0]
+  },
+  "coarse_alpha": [1.5, 5.0, 8.0, 11.0],
+  "coarse_chi": [0.28, 0.44, 0.6, 0.76],
+  "validation_seeds": [11, 23, 42, 77, 101],
+  "robust_parameter_support": {
+    "memory_scale": {"0.0": 0, "0.5": 0, "1.0": 6, "2.0": 86, "4.0": 204, "8.0": 58},
+    "transition_scale": {"0.0": 64, "0.5": 66, "1.0": 71, "2.0": 75, "4.0": 78},
+    "rollout_steps": {"4": 131, "8": 122, "16": 101},
+    "emission_width": {"1.0": 122, "2.0": 106, "4.0": 126},
+    "temperature": {"0.1": 134, "0.25": 116, "0.5": 104},
+    "loop_scale": {"0.0": 97, "1.0": 111, "4.0": 146}
+  }
+}
