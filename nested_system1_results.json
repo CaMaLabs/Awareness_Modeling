@@ -1,0 +1,820 @@
+{
+  "block_size": 300,
+  "purpose": "mechanism smoke benchmark; not an awareness/consciousness measure",
+  "results": [
+    {
+      "calibrated": false,
+      "layer_metrics": {
+        "judgments": {
+          "action_success": {
+            "bins": [
+              {
+                "count": 6.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0863583619749463
+              },
+              {
+                "count": 54.0,
+                "empirical_rate": 0.05555555555555555,
+                "mean_probability": 0.15300482554854503
+              },
+              {
+                "count": 83.0,
+                "empirical_rate": 0.24096385542168675,
+                "mean_probability": 0.25368419926240504
+              },
+              {
+                "count": 78.0,
+                "empirical_rate": 0.2948717948717949,
+                "mean_probability": 0.3480182888297045
+              },
+              {
+                "count": 92.0,
+                "empirical_rate": 0.391304347826087,
+                "mean_probability": 0.4484417853061484
+              },
+              {
+                "count": 107.0,
+                "empirical_rate": 0.6448598130841121,
+                "mean_probability": 0.550507560102652
+              },
+              {
+                "count": 133.0,
+                "empirical_rate": 0.7368421052631579,
+                "mean_probability": 0.6471118855972752
+              },
+              {
+                "count": 199.0,
+                "empirical_rate": 0.8291457286432161,
+                "mean_probability": 0.749556054898577
+              },
+              {
+                "count": 130.0,
+                "empirical_rate": 0.9307692307692308,
+                "mean_probability": 0.8423962603624101
+              },
+              {
+                "count": 18.0,
+                "empirical_rate": 1.0,
+                "mean_probability": 0.9230839233336197
+              }
+            ],
+            "expected_calibration_error": 0.0744215566219741,
+            "mean_brier": 0.16342352716168723,
+            "mean_log_loss": 0.5002265622885341,
+            "temperature": 1.0,
+            "updates": 900.0
+          },
+          "teacher_needed": {
+            "bins": [
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 30.0,
+                "empirical_rate": 0.2,
+                "mean_probability": 0.18762328262052289
+              },
+              {
+                "count": 352.0,
+                "empirical_rate": 0.14488636363636365,
+                "mean_probability": 0.24983062135105072
+              },
+              {
+                "count": 274.0,
+                "empirical_rate": 0.28102189781021897,
+                "mean_probability": 0.3462630633211118
+              },
+              {
+                "count": 177.0,
+                "empirical_rate": 0.4632768361581921,
+                "mean_probability": 0.441377614090645
+              },
+              {
+                "count": 67.0,
+                "empirical_rate": 0.5671641791044776,
+                "mean_probability": 0.535679384978221
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              }
+            ],
+            "expected_calibration_error": 0.0679704478881709,
+            "mean_brier": 0.18594972666277493,
+            "mean_log_loss": 0.5566687906583243,
+            "temperature": 1.0,
+            "updates": 900.0
+          }
+        },
+        "memory": {
+          "episodic": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "identity": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "immediate": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "working": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          }
+        },
+        "teacher_gate": {
+          "cooldown_remaining": 0,
+          "cooldown_ticks": 128,
+          "last_probability": 0.3490772729987612,
+          "last_reason": "high_prediction_error",
+          "last_tick": 900,
+          "min_persistent_ticks": 3,
+          "persistent_count": 0,
+          "threshold": 0.72,
+          "total_consultations": 0
+        },
+        "tick": 900
+      },
+      "memory": false,
+      "overall": {
+        "accuracy": 0.78,
+        "brier": 0.16342352716168745,
+        "log_loss": 0.5002265622885342,
+        "teacher_precision": 0.0,
+        "teacher_recall": 0.0
+      },
+      "phases": {
+        "A_initial": {
+          "accuracy": 0.87,
+          "brier": 0.13143434257932848,
+          "early_accuracy": 0.775,
+          "late_accuracy": 0.875,
+          "log_loss": 0.431976526052545
+        },
+        "A_return": {
+          "accuracy": 0.7333333333333333,
+          "brier": 0.168449018924099,
+          "early_accuracy": 0.375,
+          "late_accuracy": 0.8625,
+          "log_loss": 0.5067115271872529
+        },
+        "B_shift": {
+          "accuracy": 0.7366666666666667,
+          "brier": 0.19038721998163485,
+          "early_accuracy": 0.125,
+          "late_accuracy": 0.875,
+          "log_loss": 0.5619916336258047
+        }
+      },
+      "variant": "A_baseline"
+    },
+    {
+      "calibrated": true,
+      "layer_metrics": {
+        "judgments": {
+          "action_success": {
+            "bins": [
+              {
+                "count": 30.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.07704659243042554
+              },
+              {
+                "count": 60.0,
+                "empirical_rate": 0.1,
+                "mean_probability": 0.15360251282386975
+              },
+              {
+                "count": 78.0,
+                "empirical_rate": 0.24358974358974358,
+                "mean_probability": 0.24942470087140245
+              },
+              {
+                "count": 74.0,
+                "empirical_rate": 0.28378378378378377,
+                "mean_probability": 0.35084663098128005
+              },
+              {
+                "count": 68.0,
+                "empirical_rate": 0.38235294117647056,
+                "mean_probability": 0.45054074686238965
+              },
+              {
+                "count": 102.0,
+                "empirical_rate": 0.6666666666666666,
+                "mean_probability": 0.5510312239926992
+              },
+              {
+                "count": 115.0,
+                "empirical_rate": 0.7130434782608696,
+                "mean_probability": 0.6506001111566897
+              },
+              {
+                "count": 159.0,
+                "empirical_rate": 0.8113207547169812,
+                "mean_probability": 0.7522518273736505
+              },
+              {
+                "count": 151.0,
+                "empirical_rate": 0.9205298013245033,
+                "mean_probability": 0.8418089856779029
+              },
+              {
+                "count": 63.0,
+                "empirical_rate": 1.0,
+                "mean_probability": 0.9343665743874029
+              }
+            ],
+            "expected_calibration_error": 0.06663511942568534,
+            "mean_brier": 0.15152596166424687,
+            "mean_log_loss": 0.4681503310532951,
+            "temperature": 0.7271785580964806,
+            "updates": 900.0
+          },
+          "teacher_needed": {
+            "bins": [
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 174.0,
+                "empirical_rate": 0.07471264367816093,
+                "mean_probability": 0.1726505802664808
+              },
+              {
+                "count": 304.0,
+                "empirical_rate": 0.17105263157894737,
+                "mean_probability": 0.24866466810859125
+              },
+              {
+                "count": 227.0,
+                "empirical_rate": 0.28634361233480177,
+                "mean_probability": 0.346925889079209
+              },
+              {
+                "count": 135.0,
+                "empirical_rate": 0.5037037037037037,
+                "mean_probability": 0.44120054526494
+              },
+              {
+                "count": 60.0,
+                "empirical_rate": 0.5833333333333334,
+                "mean_probability": 0.5348708252508518
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              }
+            ],
+            "expected_calibration_error": 0.07303679307393537,
+            "mean_brier": 0.16947536407384822,
+            "mean_log_loss": 0.5167641628257621,
+            "temperature": 0.7245021259181141,
+            "updates": 900.0
+          }
+        },
+        "memory": {
+          "episodic": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "identity": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "immediate": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          },
+          "working": {
+            "latest_write_surprise": 0.0,
+            "plasticity_multiplier": 1.0,
+            "state_magnitude": 0.0,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.0,
+            "writes": 0.0
+          }
+        },
+        "teacher_gate": {
+          "cooldown_remaining": 0,
+          "cooldown_ticks": 128,
+          "last_probability": 0.3644728175776634,
+          "last_reason": "high_prediction_error",
+          "last_tick": 900,
+          "min_persistent_ticks": 3,
+          "persistent_count": 0,
+          "threshold": 0.72,
+          "total_consultations": 0
+        },
+        "tick": 900
+      },
+      "memory": false,
+      "overall": {
+        "accuracy": 0.7988888888888889,
+        "brier": 0.1515259616642466,
+        "log_loss": 0.4681503310532951,
+        "teacher_precision": 0.0,
+        "teacher_recall": 0.0
+      },
+      "phases": {
+        "A_initial": {
+          "accuracy": 0.87,
+          "brier": 0.12790825589594612,
+          "early_accuracy": 0.775,
+          "late_accuracy": 0.875,
+          "log_loss": 0.42012100974400357
+        },
+        "A_return": {
+          "accuracy": 0.77,
+          "brier": 0.1521802840841483,
+          "early_accuracy": 0.425,
+          "late_accuracy": 0.875,
+          "log_loss": 0.4615893129309936
+        },
+        "B_shift": {
+          "accuracy": 0.7566666666666667,
+          "brier": 0.17448934501264532,
+          "early_accuracy": 0.175,
+          "late_accuracy": 0.875,
+          "log_loss": 0.5227406704848884
+        }
+      },
+      "variant": "B_calibrated_system1"
+    },
+    {
+      "calibrated": false,
+      "layer_metrics": {
+        "judgments": {
+          "action_success": {
+            "bins": [
+              {
+                "count": 13.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.08257095302948649
+              },
+              {
+                "count": 62.0,
+                "empirical_rate": 0.06451612903225806,
+                "mean_probability": 0.1564985585498962
+              },
+              {
+                "count": 78.0,
+                "empirical_rate": 0.21794871794871795,
+                "mean_probability": 0.2531777048848754
+              },
+              {
+                "count": 82.0,
+                "empirical_rate": 0.25609756097560976,
+                "mean_probability": 0.35073988636863235
+              },
+              {
+                "count": 70.0,
+                "empirical_rate": 0.42857142857142855,
+                "mean_probability": 0.4480939773300031
+              },
+              {
+                "count": 104.0,
+                "empirical_rate": 0.6442307692307693,
+                "mean_probability": 0.5513534186297806
+              },
+              {
+                "count": 125.0,
+                "empirical_rate": 0.72,
+                "mean_probability": 0.6510761588435359
+              },
+              {
+                "count": 192.0,
+                "empirical_rate": 0.828125,
+                "mean_probability": 0.7549675577379878
+              },
+              {
+                "count": 143.0,
+                "empirical_rate": 0.9370629370629371,
+                "mean_probability": 0.8428349688199319
+              },
+              {
+                "count": 31.0,
+                "empirical_rate": 1.0,
+                "mean_probability": 0.9232557212026683
+              }
+            ],
+            "expected_calibration_error": 0.07425118746517714,
+            "mean_brier": 0.15466103664118103,
+            "mean_log_loss": 0.4788310893377275,
+            "temperature": 1.0,
+            "updates": 900.0
+          },
+          "teacher_needed": {
+            "bins": [
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 107.0,
+                "empirical_rate": 0.102803738317757,
+                "mean_probability": 0.17947033817728372
+              },
+              {
+                "count": 372.0,
+                "empirical_rate": 0.1586021505376344,
+                "mean_probability": 0.24501099604447862
+              },
+              {
+                "count": 232.0,
+                "empirical_rate": 0.3232758620689655,
+                "mean_probability": 0.3444930444282288
+              },
+              {
+                "count": 124.0,
+                "empirical_rate": 0.43548387096774194,
+                "mean_probability": 0.4428925099804108
+              },
+              {
+                "count": 65.0,
+                "empirical_rate": 0.5692307692307692,
+                "mean_probability": 0.5381519496551511
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              }
+            ],
+            "expected_calibration_error": 0.05356510836761178,
+            "mean_brier": 0.1766640823762308,
+            "mean_log_loss": 0.5344672165012591,
+            "temperature": 1.0,
+            "updates": 900.0
+          }
+        },
+        "memory": {
+          "episodic": {
+            "latest_write_surprise": 0.30096266190647214,
+            "plasticity_multiplier": 1.0095998287047534,
+            "state_magnitude": 0.03748676635779116,
+            "ticks_since_latest_write": 4.0,
+            "update_frequency": 0.02666666666666667,
+            "writes": 24.0
+          },
+          "identity": {
+            "latest_write_surprise": 0.3110571329566839,
+            "plasticity_multiplier": 1.0002298015572686,
+            "state_magnitude": 0.017906554385799876,
+            "ticks_since_latest_write": 132.0,
+            "update_frequency": 0.0022222222222222222,
+            "writes": 2.0
+          },
+          "immediate": {
+            "latest_write_surprise": 0.6267275695775029,
+            "plasticity_multiplier": 2.0,
+            "state_magnitude": 0.2113569753011498,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 1.0,
+            "writes": 900.0
+          },
+          "working": {
+            "latest_write_surprise": 0.6267275695775029,
+            "plasticity_multiplier": 1.3086249374420127,
+            "state_magnitude": 0.2696001120635588,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.24333333333333335,
+            "writes": 219.0
+          }
+        },
+        "teacher_gate": {
+          "cooldown_remaining": 0,
+          "cooldown_ticks": 128,
+          "last_probability": 0.28568046293988597,
+          "last_reason": "high_prediction_error,high_novelty",
+          "last_tick": 900,
+          "min_persistent_ticks": 3,
+          "persistent_count": 0,
+          "threshold": 0.72,
+          "total_consultations": 0
+        },
+        "tick": 900
+      },
+      "memory": true,
+      "overall": {
+        "accuracy": 0.7933333333333333,
+        "brier": 0.1546610366411812,
+        "log_loss": 0.47883108933772794,
+        "teacher_precision": 0.0,
+        "teacher_recall": 0.0
+      },
+      "phases": {
+        "A_initial": {
+          "accuracy": 0.87,
+          "brier": 0.1294917257559989,
+          "early_accuracy": 0.775,
+          "late_accuracy": 0.875,
+          "log_loss": 0.4263153422496344
+        },
+        "A_return": {
+          "accuracy": 0.77,
+          "brier": 0.15524995128813562,
+          "early_accuracy": 0.4,
+          "late_accuracy": 0.8875,
+          "log_loss": 0.4746249932558088
+        },
+        "B_shift": {
+          "accuracy": 0.74,
+          "brier": 0.179241432879409,
+          "early_accuracy": 0.125,
+          "late_accuracy": 0.8625,
+          "log_loss": 0.5355529325077406
+        }
+      },
+      "variant": "C_nested_memory"
+    },
+    {
+      "calibrated": true,
+      "layer_metrics": {
+        "judgments": {
+          "action_success": {
+            "bins": [
+              {
+                "count": 35.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.07025846843918349
+              },
+              {
+                "count": 70.0,
+                "empirical_rate": 0.12857142857142856,
+                "mean_probability": 0.15435152302384106
+              },
+              {
+                "count": 73.0,
+                "empirical_rate": 0.1780821917808219,
+                "mean_probability": 0.25171595119738827
+              },
+              {
+                "count": 67.0,
+                "empirical_rate": 0.2835820895522388,
+                "mean_probability": 0.3491948679260878
+              },
+              {
+                "count": 60.0,
+                "empirical_rate": 0.35,
+                "mean_probability": 0.4463919921486633
+              },
+              {
+                "count": 93.0,
+                "empirical_rate": 0.6774193548387096,
+                "mean_probability": 0.5546876666254394
+              },
+              {
+                "count": 101.0,
+                "empirical_rate": 0.7326732673267327,
+                "mean_probability": 0.6472596756293071
+              },
+              {
+                "count": 165.0,
+                "empirical_rate": 0.7818181818181819,
+                "mean_probability": 0.7558747493514054
+              },
+              {
+                "count": 161.0,
+                "empirical_rate": 0.9316770186335404,
+                "mean_probability": 0.8437559313426891
+              },
+              {
+                "count": 75.0,
+                "empirical_rate": 1.0,
+                "mean_probability": 0.9400357884383995
+              }
+            ],
+            "expected_calibration_error": 0.06976954463072958,
+            "mean_brier": 0.14346190025498332,
+            "mean_log_loss": 0.4474971727405173,
+            "temperature": 0.7126844523047332,
+            "updates": 900.0
+          },
+          "teacher_needed": {
+            "bins": [
+              {
+                "count": 2.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.09734872787431237
+              },
+              {
+                "count": 273.0,
+                "empirical_rate": 0.054945054945054944,
+                "mean_probability": 0.16285158818222553
+              },
+              {
+                "count": 281.0,
+                "empirical_rate": 0.19572953736654805,
+                "mean_probability": 0.2479969904829649
+              },
+              {
+                "count": 178.0,
+                "empirical_rate": 0.38764044943820225,
+                "mean_probability": 0.3447465016602946
+              },
+              {
+                "count": 110.0,
+                "empirical_rate": 0.4090909090909091,
+                "mean_probability": 0.441072936197784
+              },
+              {
+                "count": 56.0,
+                "empirical_rate": 0.5535714285714286,
+                "mean_probability": 0.5358867996824859
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              },
+              {
+                "count": 0.0,
+                "empirical_rate": 0.0,
+                "mean_probability": 0.0
+              }
+            ],
+            "expected_calibration_error": 0.06275980028801546,
+            "mean_brier": 0.16028651878840258,
+            "mean_log_loss": 0.4930310565840323,
+            "temperature": 0.7312565669678616,
+            "updates": 900.0
+          }
+        },
+        "memory": {
+          "episodic": {
+            "latest_write_surprise": 0.22468706504953606,
+            "plasticity_multiplier": 1.0089109103686853,
+            "state_magnitude": 0.035449656961447654,
+            "ticks_since_latest_write": 4.0,
+            "update_frequency": 0.025555555555555557,
+            "writes": 23.0
+          },
+          "identity": {
+            "latest_write_surprise": 0.7602583170355899,
+            "plasticity_multiplier": 1.0002301291585178,
+            "state_magnitude": 0.015487259225551017,
+            "ticks_since_latest_write": 644.0,
+            "update_frequency": 0.0011111111111111111,
+            "writes": 1.0
+          },
+          "immediate": {
+            "latest_write_surprise": 0.620839686204505,
+            "plasticity_multiplier": 2.0,
+            "state_magnitude": 0.22236634576849962,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 1.0,
+            "writes": 900.0
+          },
+          "working": {
+            "latest_write_surprise": 0.620839686204505,
+            "plasticity_multiplier": 1.2834271643613713,
+            "state_magnitude": 0.274189634188641,
+            "ticks_since_latest_write": 0.0,
+            "update_frequency": 0.2288888888888889,
+            "writes": 206.0
+          }
+        },
+        "teacher_gate": {
+          "cooldown_remaining": 0,
+          "cooldown_ticks": 128,
+          "last_probability": 0.2907157090843248,
+          "last_reason": "high_prediction_error,high_novelty",
+          "last_tick": 900,
+          "min_persistent_ticks": 3,
+          "persistent_count": 0,
+          "threshold": 0.72,
+          "total_consultations": 0
+        },
+        "tick": 900
+      },
+      "memory": true,
+      "overall": {
+        "accuracy": 0.8155555555555556,
+        "brier": 0.1434619002549833,
+        "log_loss": 0.4474971727405174,
+        "teacher_precision": 0.0,
+        "teacher_recall": 0.0
+      },
+      "phases": {
+        "A_initial": {
+          "accuracy": 0.87,
+          "brier": 0.1265969800516798,
+          "early_accuracy": 0.775,
+          "late_accuracy": 0.875,
+          "log_loss": 0.41630194226395717
+        },
+        "A_return": {
+          "accuracy": 0.8033333333333333,
+          "brier": 0.138762604150445,
+          "early_accuracy": 0.45,
+          "late_accuracy": 0.8875,
+          "log_loss": 0.4270269322240825
+        },
+        "B_shift": {
+          "accuracy": 0.7733333333333333,
+          "brier": 0.16502611656282506,
+          "early_accuracy": 0.225,
+          "late_accuracy": 0.8625,
+          "log_loss": 0.49916264373351266
+        }
+      },
+      "variant": "D_nested_plus_calibrated"
+    }
+  ],
+  "samples": 900,
+  "seed": 8776
+}

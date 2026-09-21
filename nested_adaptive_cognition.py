@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import json
 import math
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 
 DEFAULT_JUDGMENTS = (
@@ -57,6 +57,142 @@ def log_loss(probability: float, target: float, eps: float = 1e-9) -> float:
     return -(target * math.log(p) + (1.0 - target) * math.log(1.0 - p))
 
 
+def vector_magnitude(values: Sequence[float]) -> float:
+    if not values:
+        return 0.0
+    return math.sqrt(sum(float(v) * float(v) for v in values) / len(values))
+
+
+@dataclass
+class CalibrationBin:
+    count: int = 0
+    probability_sum: float = 0.0
+    positive_sum: float = 0.0
+
+    def observe(self, probability: float, target: float) -> None:
+        self.count += 1
+        self.probability_sum += _clip(float(probability), 0.0, 1.0)
+        self.positive_sum += 1.0 if float(target) >= 0.5 else 0.0
+
+    def state_dict(self) -> Dict[str, object]:
+        return {
+            "count": self.count,
+            "probability_sum": self.probability_sum,
+            "positive_sum": self.positive_sum,
+        }
+
+    @classmethod
+    def from_state_dict(cls, data: Mapping[str, object]) -> "CalibrationBin":
+        return cls(
+            count=int(data.get("count", 0)),
+            probability_sum=float(data.get("probability_sum", 0.0)),
+            positive_sum=float(data.get("positive_sum", 0.0)),
+        )
+
+    def metrics(self) -> Dict[str, float]:
+        if not self.count:
+            return {
+                "count": 0.0,
+                "mean_probability": 0.0,
+                "empirical_rate": 0.0,
+            }
+        return {
+            "count": float(self.count),
+            "mean_probability": self.probability_sum / self.count,
+            "empirical_rate": self.positive_sum / self.count,
+        }
+
+
+@dataclass
+class TeacherGateState:
+    """Bounded escalation state for an external teacher.
+
+    The layer never calls a teacher and never applies teacher output directly.
+    It only exposes whether escalation is currently permitted and why.
+    """
+
+    threshold: float = 0.72
+    cooldown_ticks: int = 128
+    min_persistent_ticks: int = 3
+    cooldown_remaining: int = 0
+    persistent_count: int = 0
+    total_consultations: int = 0
+    last_reason: str = ""
+    last_tick: int = 0
+    last_probability: float = 0.0
+
+    def evaluate(
+        self,
+        *,
+        tick: int,
+        probability: float,
+        prediction_error: float,
+        novelty: float,
+        sensory_conflict: float = 0.0,
+        failed_exploration: float = 0.0,
+    ) -> Tuple[bool, str]:
+        if self.cooldown_remaining > 0:
+            self.cooldown_remaining -= 1
+
+        probability = _clip(float(probability), 0.0, 1.0)
+        reasons = []
+        if probability >= self.threshold:
+            reasons.append("teacher_probability")
+        if abs(float(prediction_error)) >= 0.55:
+            reasons.append("high_prediction_error")
+        if float(novelty) >= 0.55:
+            reasons.append("high_novelty")
+        if float(sensory_conflict) >= 0.50:
+            reasons.append("sensory_conflict")
+        if float(failed_exploration) >= 0.50:
+            reasons.append("failed_exploration")
+
+        escalatable = probability >= self.threshold and len(reasons) >= 2
+        self.persistent_count = self.persistent_count + 1 if escalatable else 0
+        allowed = (
+            escalatable
+            and self.persistent_count >= self.min_persistent_ticks
+            and self.cooldown_remaining == 0
+        )
+        reason = ",".join(reasons) if reasons else "none"
+        self.last_tick = int(tick)
+        self.last_probability = probability
+        self.last_reason = reason
+        if allowed:
+            self.total_consultations += 1
+            self.cooldown_remaining = max(0, int(self.cooldown_ticks))
+        return allowed, reason
+
+    def state_dict(self) -> Dict[str, object]:
+        return {
+            "threshold": self.threshold,
+            "cooldown_ticks": self.cooldown_ticks,
+            "min_persistent_ticks": self.min_persistent_ticks,
+            "cooldown_remaining": self.cooldown_remaining,
+            "persistent_count": self.persistent_count,
+            "total_consultations": self.total_consultations,
+            "last_reason": self.last_reason,
+            "last_tick": self.last_tick,
+            "last_probability": self.last_probability,
+        }
+
+    @classmethod
+    def from_state_dict(cls, data: Mapping[str, object] | None, *, threshold: float) -> "TeacherGateState":
+        if not isinstance(data, Mapping):
+            return cls(threshold=threshold)
+        return cls(
+            threshold=float(data.get("threshold", threshold)),
+            cooldown_ticks=int(data.get("cooldown_ticks", 128)),
+            min_persistent_ticks=int(data.get("min_persistent_ticks", 3)),
+            cooldown_remaining=int(data.get("cooldown_remaining", 0)),
+            persistent_count=int(data.get("persistent_count", 0)),
+            total_consultations=int(data.get("total_consultations", 0)),
+            last_reason=str(data.get("last_reason", "")),
+            last_tick=int(data.get("last_tick", 0)),
+            last_probability=float(data.get("last_probability", 0.0)),
+        )
+
+
 @dataclass
 class MemoryBand:
     """One memory/plasticity timescale.
@@ -77,6 +213,9 @@ class MemoryBand:
     state: List[float] = field(default_factory=list)
     plasticity: float = 1.0
     updates: int = 0
+    observations: int = 0
+    latest_write_surprise: float = 0.0
+    last_write_tick: int = 0
 
     def __post_init__(self) -> None:
         if self.width <= 0:
@@ -94,6 +233,7 @@ class MemoryBand:
     def observe(self, vector: Sequence[float], tick: int, surprise: float) -> bool:
         if len(vector) != self.width:
             raise ValueError("memory observation width mismatch")
+        self.observations += 1
         surprise = _clip(abs(float(surprise)), 0.0, 1.0)
         if not self.should_update(tick, surprise):
             return False
@@ -112,7 +252,21 @@ class MemoryBand:
             self.max_plasticity,
         )
         self.updates += 1
+        self.latest_write_surprise = surprise
+        self.last_write_tick = int(tick)
         return True
+
+    def telemetry(self, current_tick: int) -> Dict[str, float]:
+        return {
+            "writes": float(self.updates),
+            "update_frequency": float(self.updates) / max(1.0, float(current_tick)),
+            "plasticity_multiplier": float(self.plasticity),
+            "state_magnitude": vector_magnitude(self.state),
+            "latest_write_surprise": float(self.latest_write_surprise),
+            "ticks_since_latest_write": float(max(0, int(current_tick) - self.last_write_tick))
+            if self.last_write_tick
+            else float(current_tick),
+        }
 
     def state_dict(self) -> Dict[str, object]:
         return {
@@ -127,6 +281,9 @@ class MemoryBand:
             "state": list(self.state),
             "plasticity": self.plasticity,
             "updates": self.updates,
+            "observations": self.observations,
+            "latest_write_surprise": self.latest_write_surprise,
+            "last_write_tick": self.last_write_tick,
         }
 
     @classmethod
@@ -144,6 +301,9 @@ class MemoryBand:
         )
         band.plasticity = float(data.get("plasticity", 1.0))
         band.updates = int(data.get("updates", 0))
+        band.observations = int(data.get("observations", band.updates))
+        band.latest_write_surprise = float(data.get("latest_write_surprise", 0.0))
+        band.last_write_tick = int(data.get("last_write_tick", 0))
         return band
 
 
@@ -201,6 +361,9 @@ class ContinuumMemory:
             "bands": [band.state_dict() for band in self.bands],
         }
 
+    def telemetry(self) -> Dict[str, Dict[str, float]]:
+        return {band.name: band.telemetry(self.tick) for band in self.bands}
+
     @classmethod
     def from_state_dict(cls, data: Mapping[str, object]) -> "ContinuumMemory":
         bands = [MemoryBand.from_state_dict(x) for x in data["bands"]]
@@ -224,12 +387,15 @@ class CalibratedBinaryHead:
     updates: int = 0
     cumulative_brier: float = 0.0
     cumulative_log_loss: float = 0.0
+    bins: List[CalibrationBin] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if not self.weights:
             self.weights = [0.0] * self.width
         if len(self.weights) != self.width:
             raise ValueError("head width mismatch")
+        if not self.bins:
+            self.bins = [CalibrationBin() for _ in range(10)]
 
     @property
     def temperature(self) -> float:
@@ -269,22 +435,35 @@ class CalibratedBinaryHead:
         ll = log_loss(p, y)
         self.cumulative_brier += brier
         self.cumulative_log_loss += ll
+        bin_index = min(len(self.bins) - 1, max(0, int(p * len(self.bins))))
+        self.bins[bin_index].observe(p, y)
         self.updates += 1
         return {"probability": p, "brier": brier, "log_loss": ll}
 
     def metrics(self) -> Dict[str, float]:
+        bin_metrics = [item.metrics() for item in self.bins]
+        ece = 0.0
+        for row in bin_metrics:
+            if self.updates:
+                ece += (row["count"] / self.updates) * abs(
+                    row["mean_probability"] - row["empirical_rate"]
+                )
         if not self.updates:
             return {
                 "updates": 0.0,
                 "mean_brier": 0.0,
                 "mean_log_loss": 0.0,
                 "temperature": self.temperature,
+                "expected_calibration_error": 0.0,
+                "bins": bin_metrics,
             }
         return {
             "updates": float(self.updates),
             "mean_brier": self.cumulative_brier / self.updates,
             "mean_log_loss": self.cumulative_log_loss / self.updates,
             "temperature": self.temperature,
+            "expected_calibration_error": ece,
+            "bins": bin_metrics,
         }
 
     def state_dict(self) -> Dict[str, object]:
@@ -300,6 +479,7 @@ class CalibratedBinaryHead:
             "updates": self.updates,
             "cumulative_brier": self.cumulative_brier,
             "cumulative_log_loss": self.cumulative_log_loss,
+            "bins": [item.state_dict() for item in self.bins],
         }
 
     @classmethod
@@ -317,6 +497,9 @@ class CalibratedBinaryHead:
         head.updates = int(data.get("updates", 0))
         head.cumulative_brier = float(data.get("cumulative_brier", 0.0))
         head.cumulative_log_loss = float(data.get("cumulative_log_loss", 0.0))
+        raw_bins = data.get("bins", [])
+        if isinstance(raw_bins, list) and raw_bins:
+            head.bins = [CalibrationBin.from_state_dict(item) for item in raw_bins]
         return head
 
 
@@ -407,6 +590,9 @@ class AdaptiveCognitionLayer:
         self.system1 = SystemOneBank(
             self.context_width, judgment_names, calibrated=calibrated_heads
         )
+        self.teacher_gate = TeacherGateState(threshold=self.teacher_threshold)
+        self.pending_training_context: Optional[List[float]] = None
+        self.prediction_log: List[Dict[str, object]] = []
 
     def _vectorize(self, features: Mapping[str, float]) -> List[float]:
         return [math.tanh(float(features.get(name, 0.0))) for name in self.feature_names]
@@ -442,7 +628,15 @@ class AdaptiveCognitionLayer:
         judgments = self.system1.predict(context) if self.enable_system1 else {}
 
         teacher_probability = float(judgments.get("teacher_needed", 0.0))
-        teacher_gate = self.enable_system1 and teacher_probability >= self.teacher_threshold
+        sensory_conflict = float(judgments.get("sensory_conflict", 0.0))
+        teacher_gate, teacher_reason = self.teacher_gate.evaluate(
+            tick=self.tick,
+            probability=teacher_probability if self.enable_system1 else 0.0,
+            prediction_error=prediction_error,
+            novelty=novelty,
+            sensory_conflict=sensory_conflict,
+        )
+        teacher_gate = self.enable_system1 and teacher_gate
 
         head_updates: Dict[str, Dict[str, float]] = {}
         memory_updates: Dict[str, bool] = {}
@@ -451,29 +645,53 @@ class AdaptiveCognitionLayer:
                 head_updates = self.system1.update(context, labels)
             if self.enable_memory:
                 memory_updates = self.memory.observe(raw, abs(float(prediction_error)))
+        self.pending_training_context = list(context)
+        self.prediction_log.append(
+            {
+                "tick": self.tick,
+                "judgments": dict(judgments),
+                "teacher_gate": teacher_gate,
+                "teacher_reason": teacher_reason,
+            }
+        )
+        self.prediction_log[:] = self.prediction_log[-256:]
 
         return {
             "tick": self.tick,
             "judgments": judgments,
             "teacher_probability": teacher_probability,
             "teacher_gate": teacher_gate,
+            "teacher_reason": teacher_reason,
             "intrinsic_novelty": novelty,
             "memory_readout": self.memory.read() if self.enable_memory else [0.0] * len(raw),
             "memory_updates": memory_updates,
             "head_updates": head_updates,
         }
 
+    def learn_from_labels(
+        self,
+        labels: Mapping[str, float],
+        *,
+        context: Optional[Sequence[float]] = None,
+    ) -> Dict[str, Dict[str, float]]:
+        """Train selected heads from an already-logged prediction context."""
+
+        if not self.enable_system1 or not labels:
+            return {}
+        selected = list(context) if context is not None else self.pending_training_context
+        if selected is None:
+            return {}
+        return self.system1.update(selected, labels)
+
     def metrics(self) -> Dict[str, object]:
         return {
             "tick": self.tick,
             "memory": {
-                band.name: {
-                    "updates": band.updates,
-                    "plasticity": band.plasticity,
-                }
+                band.name: band.telemetry(self.memory.tick)
                 for band in self.memory.bands
             },
             "judgments": self.system1.metrics(),
+            "teacher_gate": self.teacher_gate.state_dict(),
         }
 
     def state_dict(self) -> Dict[str, object]:
@@ -485,6 +703,9 @@ class AdaptiveCognitionLayer:
             "tick": self.tick,
             "memory": self.memory.state_dict(),
             "system1": self.system1.state_dict(),
+            "teacher_gate": self.teacher_gate.state_dict(),
+            "pending_training_context": list(self.pending_training_context or []),
+            "prediction_log": list(self.prediction_log[-64:]),
         }
 
     @classmethod
@@ -501,7 +722,42 @@ class AdaptiveCognitionLayer:
         layer.tick = int(data.get("tick", 0))
         layer.memory = ContinuumMemory.from_state_dict(data["memory"])
         layer.system1 = SystemOneBank.from_state_dict(system1_data)
+        layer.teacher_gate = TeacherGateState.from_state_dict(
+            data.get("teacher_gate"), threshold=layer.teacher_threshold
+        )
+        pending = data.get("pending_training_context", [])
+        if isinstance(pending, list) and pending:
+            layer.pending_training_context = [float(value) for value in pending]
+        raw_log = data.get("prediction_log", [])
+        if isinstance(raw_log, list):
+            layer.prediction_log = [dict(item) for item in raw_log if isinstance(item, Mapping)]
         return layer
+
+    @classmethod
+    def safe_from_state_dict(
+        cls,
+        data: Mapping[str, object] | None,
+        *,
+        feature_names: Optional[Sequence[str]] = None,
+        judgment_names: Sequence[str] = DEFAULT_JUDGMENTS,
+        enable_memory: bool = True,
+        enable_system1: bool = True,
+        calibrated_heads: bool = True,
+    ) -> "AdaptiveCognitionLayer":
+        try:
+            if isinstance(data, Mapping):
+                return cls.from_state_dict(data)
+        except Exception:
+            pass
+        if feature_names is None:
+            feature_names = ("bias",)
+        return cls(
+            feature_names=feature_names,
+            judgment_names=judgment_names,
+            enable_memory=enable_memory,
+            enable_system1=enable_system1,
+            calibrated_heads=calibrated_heads,
+        )
 
     def dumps(self) -> str:
         return json.dumps(self.state_dict(), sort_keys=True)

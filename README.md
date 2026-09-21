@@ -37,6 +37,9 @@ The current pipeline supports:
 - `recurrent_parameter_audit.py` — preregistered six-parameter recurrence sweep, controls, perturbation census, and multi-seed validation
 - `recurrent_parameter_audit_core.py` — vectorized audit dynamics and metrics
 - `empirical_sleep_constraint_audit.py` — downstream comparison of robust recurrent configurations with published human sleep transition, dwell, and arousal structure
+- `nested_adaptive_cognition.py` — additive nested continuum-memory and calibrated System-1 judgment layer
+- `nested_drcs_runtime.py` — feature-gated adapter for persistent D-RCS snapshot dictionaries
+- `nested_system1_experiment.py` — deterministic A/B/C/D smoke benchmark for nested memory and calibrated heads
 - `recurrent_parameter_audit_passing_region.csv` — generated parameter-audit table containing the fully robust marker used by the empirical audit
 - `test_true_recurrent_dynamics.py` — unit tests for the recurrent falsification mechanics
 - `test_recurrent_parameter_audit.py` — audit/deconfounding/control/classification tests
@@ -57,6 +60,8 @@ python true_recurrent_dynamics.py --input balanced_states.csv --out-prefix true_
 python -m unittest -v test_true_recurrent_dynamics.py test_recurrent_parameter_audit.py
 python recurrent_parameter_audit.py --workers 4
 python empirical_sleep_constraint_audit.py --robust-configs recurrent_parameter_audit_passing_region.csv
+python -m unittest -v test_nested_adaptive_cognition.py
+python nested_system1_experiment.py --seed 8776 --block-size 300
 ```
 
 The parameter audit writes reproducible CSV, JSON, and Markdown outputs including the full parameter sweep, passing region, perturbation sensitivity, multi-seed census, controls, state occupancy, and transition summaries. The empirical audit then tests the fully robust subset against fixed external temporal constraints and writes its own per-configuration CSV, JSON summary, and Markdown report.
@@ -80,6 +85,62 @@ A downstream empirical audit now tests all 354 robust synthetic configurations a
 The qualitative perturbation ordering is more promising: 343/354 robust configurations make N3 less wake-arousable than N2 and REM. Absolute softmax values are not calibrated event rates, however, and are not treated as literal arousal probabilities.
 
 The current defensible interpretation is therefore two-layered: **the deconfounded synthetic model family contains a robust recurrent region, but that region is not directly temporally calibrated to human sleep architecture under the current uniform alpha/chi driver.** The empirical null exposes a temporal-driver/identifiability gap rather than, by itself, falsifying the synthetic attractor region. Before assigning physiological meaning to the recurrent memory coefficient, the model needs an autonomous temporal layer with empirically constrained stage hazards/survival, higher-order transition history, and circadian/homeostatic drive.
+
+## Nested memory + System-1 integration
+
+The `agent/hope-system1-integration` branch adds an additive nested cognition layer. It does not replace the recurrent state-selection scripts and does not call an LLM for core cognition.
+
+```mermaid
+flowchart TD
+  A["sensory streams"] --> B["sensory cortex / host runtime snapshot"]
+  B --> C["persistent recurrent D-RCS state"]
+  C --> D["nested continuum memory"]
+  D --> E["calibrated System-1 judgment heads"]
+  E --> F["probabilistic action / attention / teacher-escalation signals"]
+  F --> G["host runtime action loop"]
+  G --> H["outcomes and prediction error"]
+  H --> D
+  H --> E
+```
+
+Feature modes are explicit:
+
+| mode | memory | System-1 | calibration |
+|---|---:|---:|---:|
+| A | off | off | off |
+| B | off | on | on |
+| C | on | off | off |
+| D | on | on | on |
+
+Runtime telemetry from the nested layer includes per memory band: `writes`, `update_frequency`, `plasticity_multiplier`, `state_magnitude`, `latest_write_surprise`, and `ticks_since_latest_write`.
+
+Per System-1 head telemetry includes update count, mean Brier score, mean log loss, calibration temperature, predicted probability bins, empirical rate per bin, and expected calibration error.
+
+Checkpoint state now includes memory-band state/plasticity/write counters, head weights/biases/temperatures/calibration bins, delayed training context, teacher-gate cooldown state, prediction logs, and adapter stream-slot mappings. Missing or corrupted optional nested state is fail-safe initialized instead of invalidating legacy checkpoints.
+
+The adapter preserves stream identity by assigning stable slots to stream names from persistent D-RCS snapshots. It computes cross-stream conflict from per-stream novelty/prediction-error disagreement instead of prematurely collapsing streams into one scalar.
+
+The teacher boundary remains external. The nested layer can expose `teacher_probability`, `teacher_gate`, and `teacher_reason`; it never calls an LLM and never permits teacher output to overwrite identity memory, recurrent state, or chosen actions.
+
+Measured smoke benchmark results on `python nested_system1_experiment.py --seed 8776 --block-size 300`:
+
+| variant | accuracy | Brier ↓ | log loss ↓ | action-success ECE ↓ | action-success temperature |
+|---|---:|---:|---:|---:|---:|
+| A baseline | 0.7800 | 0.1634 | 0.5002 | 0.0744 | 1.0000 |
+| B calibrated System-1 | 0.7989 | 0.1515 | 0.4682 | 0.0666 | 0.7272 |
+| C nested memory | 0.7933 | 0.1547 | 0.4788 | 0.0743 | 1.0000 |
+| D nested + calibrated | 0.8156 | 0.1435 | 0.4475 | 0.0698 | 0.7127 |
+
+Memory writes in the same run demonstrate distinct timescales:
+
+| variant | immediate | working | episodic | identity |
+|---|---:|---:|---:|---:|
+| C nested memory | 900 | 219 | 24 | 2 |
+| D nested + calibrated | 900 | 206 | 23 | 1 |
+
+These results are synthetic engineering checks only. They do not prove awareness, consciousness, or physiological validity.
+
+Falsification controls to retain for downstream runtime work include shuffled labels, shuffled temporal order, disabled slow memory, frozen plasticity, random judgment heads, uncalibrated heads, disconnected memory readout, disabled teacher gate, randomized/no-op teacher output, and restart during a run.
 
 ## Data format
 
