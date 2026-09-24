@@ -72,20 +72,18 @@ def run_variant(variant: Variant, stream: List[Dict[str, float]]) -> Dict[str, o
 
     records: List[Dict[str, object]] = []
     previous_error = 0.5
+    pending_labels = None
     for row in stream:
-        teacher_label = 1.0 if previous_error >= 0.45 else 0.0
         result = layer.step(
             {"signal": row["signal"], "regime_cue": row["regime_cue"]},
             prediction_error=previous_error,
-            labels={
-                "action_success": row["target"],
-                "teacher_needed": teacher_label,
-            },
+            labels=pending_labels,
         )
         p = float(result["judgments"]["action_success"])
         y = float(row["target"])
         prediction = 1.0 if p >= 0.5 else 0.0
         error = abs(p - y)
+        teacher_label = 1.0 if error >= 0.45 else 0.0
         records.append(
             {
                 "phase": row["phase"],
@@ -101,6 +99,13 @@ def run_variant(variant: Variant, stream: List[Dict[str, float]]) -> Dict[str, o
             }
         )
         previous_error = error
+        pending_labels = {
+            "action_success": y,
+            "teacher_needed": teacher_label,
+        }
+
+    if pending_labels is not None:
+        layer.learn_from_labels(pending_labels)
 
     phase_metrics: Dict[str, Dict[str, float]] = {}
     for phase in ("A_initial", "B_shift", "A_return"):

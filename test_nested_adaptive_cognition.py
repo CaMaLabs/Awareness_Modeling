@@ -91,6 +91,7 @@ class LayerTests(unittest.TestCase):
 
     def test_labels_train_only_named_heads(self):
         layer = AdaptiveCognitionLayer(["a", "b"])
+        layer.step({"a": 0.0, "b": 0.0}, prediction_error=0.1)
         layer.step(
             {"a": 1.0, "b": -0.5},
             prediction_error=0.7,
@@ -99,6 +100,14 @@ class LayerTests(unittest.TestCase):
         self.assertEqual(layer.system1.heads["teacher_needed"].updates, 1)
         self.assertEqual(layer.system1.heads["prediction_failure"].updates, 1)
         self.assertEqual(layer.system1.heads["explore"].updates, 0)
+
+    def test_labels_do_not_train_same_tick_prediction(self):
+        layer = AdaptiveCognitionLayer(["a"])
+        result = layer.step({"a": 1.0}, prediction_error=0.6, labels={"action_success": 1.0})
+        logged = layer.prediction_log[-1]["judgments"]["action_success"]
+        self.assertEqual(result["head_updates"], {})
+        self.assertEqual(layer.system1.heads["action_success"].updates, 0)
+        self.assertEqual(result["judgments"]["action_success"], logged)
 
     def test_delayed_learning_uses_logged_previous_context(self):
         layer = AdaptiveCognitionLayer(["a"])

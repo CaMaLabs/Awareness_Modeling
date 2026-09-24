@@ -122,21 +122,22 @@ The adapter preserves stream identity by assigning stable slots to stream names 
 
 The teacher boundary remains external. The nested layer can expose `teacher_probability`, `teacher_gate`, and `teacher_reason`; it never calls an LLM and never permits teacher output to overwrite identity memory, recurrent state, or chosen actions.
 
-Measured smoke benchmark results on `python nested_system1_experiment.py --seed 8776 --block-size 300`:
+Measured smoke benchmark results on `python nested_system1_experiment.py --seed 8776 --block-size 300`.
+The benchmark now uses delayed labels: each row's outcome trains only after that row's prediction has been logged.
 
 | variant | accuracy | Brier ↓ | log loss ↓ | action-success ECE ↓ | action-success temperature |
 |---|---:|---:|---:|---:|---:|
-| A baseline | 0.7800 | 0.1634 | 0.5002 | 0.0744 | 1.0000 |
-| B calibrated System-1 | 0.7989 | 0.1515 | 0.4682 | 0.0666 | 0.7272 |
-| C nested memory | 0.7933 | 0.1547 | 0.4788 | 0.0743 | 1.0000 |
-| D nested + calibrated | 0.8156 | 0.1435 | 0.4475 | 0.0698 | 0.7127 |
+| A baseline | 0.7767 | 0.1645 | 0.5029 | 0.0743 | 1.0000 |
+| B calibrated System-1 | 0.7956 | 0.1528 | 0.4713 | 0.0666 | 0.7272 |
+| C nested memory | 0.7933 | 0.1557 | 0.4814 | 0.0753 | 1.0000 |
+| D nested + calibrated | 0.8122 | 0.1447 | 0.4505 | 0.0697 | 0.7125 |
 
 Memory writes in the same run demonstrate distinct timescales:
 
 | variant | immediate | working | episodic | identity |
 |---|---:|---:|---:|---:|
 | C nested memory | 900 | 219 | 24 | 2 |
-| D nested + calibrated | 900 | 206 | 23 | 1 |
+| D nested + calibrated | 900 | 206 | 24 | 1 |
 
 These results are synthetic engineering checks only. They do not prove awareness, consciousness, or physiological validity.
 

@@ -128,14 +128,14 @@ The complete unit suite passes 39/39 tests after the runtime-adapter work:
 python -m unittest -v
 ```
 
-A deterministic smoke benchmark (`seed=8776`, block size 300) produced:
+A deterministic smoke benchmark (`seed=8776`, block size 300) produced the following after enforcing delayed labels, so current-row outcomes cannot train current-row predictions:
 
 | variant | accuracy | Brier ↓ | log loss ↓ | B-shift early accuracy | A-return early accuracy |
 |---|---:|---:|---:|---:|---:|
-| A baseline | 0.7800 | 0.1634 | 0.5002 | 0.1250 | 0.3750 |
-| B calibrated System-1 | 0.7989 | 0.1515 | 0.4682 | 0.1750 | 0.4250 |
-| C nested memory | 0.7933 | 0.1547 | 0.4788 | 0.1250 | 0.4000 |
-| D nested + calibrated | 0.8156 | 0.1435 | 0.4475 | 0.2250 | 0.4500 |
+| A baseline | 0.7767 | 0.1645 | 0.5029 | 0.1000 | 0.3750 |
+| B calibrated System-1 | 0.7956 | 0.1528 | 0.4713 | 0.1500 | 0.4250 |
+| C nested memory | 0.7933 | 0.1557 | 0.4814 | 0.1250 | 0.4000 |
+| D nested + calibrated | 0.8122 | 0.1447 | 0.4505 | 0.1750 | 0.4250 |
 
 These numbers only characterize the synthetic smoke task. They are not evidence for awareness, consciousness, or physiological validity.
 
@@ -143,10 +143,10 @@ Additional measured calibration/memory telemetry from the same run:
 
 | variant | action-success ECE ↓ | action-success temp. | immediate writes | working writes | episodic writes | identity writes |
 |---|---:|---:|---:|---:|---:|---:|
-| A baseline | 0.0744 | 1.0000 | 0 | 0 | 0 | 0 |
+| A baseline | 0.0743 | 1.0000 | 0 | 0 | 0 | 0 |
 | B calibrated System-1 | 0.0666 | 0.7272 | 0 | 0 | 0 | 0 |
-| C nested memory | 0.0743 | 1.0000 | 900 | 219 | 24 | 2 |
-| D nested + calibrated | 0.0698 | 0.7127 | 900 | 206 | 23 | 1 |
+| C nested memory | 0.0753 | 1.0000 | 900 | 219 | 24 | 2 |
+| D nested + calibrated | 0.0697 | 0.7125 | 900 | 206 | 24 | 1 |
 
 ## Run
 
@@ -159,7 +159,7 @@ python nested_system1_experiment.py --seed 8776 --block-size 300
 
 Downstream runtime experiments should retain controls for shuffled labels, shuffled temporal order, disabled slow memory, frozen plasticity, random judgment heads, uncalibrated heads, disconnected memory readout, disabled teacher gate, randomized/no-op teacher output, and restart during a run.
 
-## Remaining live-runtime integration target
+## Live-runtime integration target
 
 Wire `AdaptiveCognitionLayer` into the persistent D-RCS runtime so that:
 
@@ -171,4 +171,4 @@ Wire `AdaptiveCognitionLayer` into the persistent D-RCS runtime so that:
 6. baseline, System-1-only, nested-memory-only, and combined modes remain feature-gated for controlled A/B/C/D runs;
 7. calibration, adaptation latency, catastrophic forgetting, action diversity, winner recurrence, and self-model stability are logged separately.
 
-This branch now supplies the adapter boundary but does not modify the separate live D-RCS repository's service files.
+The separate live D-RCS repository can consume this adapter boundary without replacing its recurrent core. In the local D-RCS runtime integration, the default mode is `A` for backward-compatible behavior, and modes `B`, `C`, and `D` are opt-in runtime flags.

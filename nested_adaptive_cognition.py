@@ -638,14 +638,11 @@ class AdaptiveCognitionLayer:
         )
         teacher_gate = self.enable_system1 and teacher_gate
 
-        head_updates: Dict[str, Dict[str, float]] = {}
-        memory_updates: Dict[str, bool] = {}
-        if learn:
-            if self.enable_system1 and labels:
-                head_updates = self.system1.update(context, labels)
-            if self.enable_memory:
-                memory_updates = self.memory.observe(raw, abs(float(prediction_error)))
-        self.pending_training_context = list(context)
+        previous_training_context = (
+            list(self.pending_training_context)
+            if self.pending_training_context is not None
+            else None
+        )
         self.prediction_log.append(
             {
                 "tick": self.tick,
@@ -655,6 +652,15 @@ class AdaptiveCognitionLayer:
             }
         )
         self.prediction_log[:] = self.prediction_log[-256:]
+
+        head_updates: Dict[str, Dict[str, float]] = {}
+        memory_updates: Dict[str, bool] = {}
+        if learn:
+            if self.enable_memory:
+                memory_updates = self.memory.observe(raw, abs(float(prediction_error)))
+            if self.enable_system1 and labels and previous_training_context is not None:
+                head_updates = self.system1.update(previous_training_context, labels)
+        self.pending_training_context = list(context)
 
         return {
             "tick": self.tick,
